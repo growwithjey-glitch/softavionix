@@ -1,9 +1,21 @@
 import Stripe from "stripe";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
-
 export async function POST(req: Request) {
+  const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
+
+  if (!stripeSecretKey) {
+    return Response.json(
+      { error: "Missing STRIPE_SECRET_KEY environment variable" },
+      { status: 500 }
+    );
+  }
+
+  const stripe = new Stripe(stripeSecretKey);
+
   const { items } = await req.json();
+
+  const siteUrl =
+    process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 
   const session = await stripe.checkout.sessions.create({
     mode: "payment",
@@ -18,8 +30,8 @@ export async function POST(req: Request) {
       },
       quantity: item.quantity,
     })),
-    success_url: `${process.env.NEXT_PUBLIC_SITE_URL}/success`,
-    cancel_url: `${process.env.NEXT_PUBLIC_SITE_URL}/cart`,
+    success_url: `${siteUrl}/success`,
+    cancel_url: `${siteUrl}/cart`,
   });
 
   return Response.json({ url: session.url });
