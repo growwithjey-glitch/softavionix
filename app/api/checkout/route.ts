@@ -5,7 +5,7 @@ export async function POST(req: Request) {
 
   if (!stripeSecretKey) {
     return Response.json(
-      { error: "Missing STRIPE_SECRET_KEY environment variable" },
+      { error: "Missing STRIPE_SECRET_KEY" },
       { status: 500 }
     );
   }
