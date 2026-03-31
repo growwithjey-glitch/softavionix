@@ -30,7 +30,7 @@ export async function POST(req: Request) {
       },
       quantity: item.quantity,
     })),
-    success_url: `${siteUrl}/success`,
+    success_url: `${siteUrl}/success?session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${siteUrl}/cart`,
   });
 

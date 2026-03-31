@@ -2,11 +2,21 @@
 
 import { Product } from "@/lib/products";
 
-export default function AddToCartButton({ product }: { product: Product }) {
-  const handleAddToCart = () => {
-    const existing = JSON.parse(localStorage.getItem("cart") || "[]");
+type CartProduct = Product & {
+  quantity?: number;
+};
 
-    const found = existing.find((item: Product) => item.id === product.id);
+export default function AddToCartButton({
+  product,
+  className = "",
+}: {
+  product: Product;
+  className?: string;
+}) {
+  const handleAddToCart = () => {
+    const existing: CartProduct[] = JSON.parse(localStorage.getItem("cart") || "[]");
+
+    const found = existing.find((item) => item.id === product.id);
 
     if (found) {
       found.quantity = (found.quantity || 1) + 1;
@@ -21,7 +31,7 @@ export default function AddToCartButton({ product }: { product: Product }) {
   return (
     <button
       onClick={handleAddToCart}
-      className="rounded-full bg-slate-900 px-6 py-3 text-sm font-medium text-white"
+      className={`rounded-full bg-slate-900 px-6 py-3 text-sm font-medium text-white transition hover:bg-slate-800 ${className}`}
     >
       Add to Cart
     </button>
