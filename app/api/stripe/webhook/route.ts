@@ -91,22 +91,23 @@ export async function POST(req: Request) {
       } else {
         console.warn("No customer email found on session:", session.id);
       }
+console.log("ADMIN EMAIL BLOCK REACHED");
+     try {
+  console.log("Preparing admin order email for:", process.env.ADMIN_ORDER_EMAIL);
 
-      try {
-        console.log("Preparing admin order email for:", process.env.ADMIN_ORDER_EMAIL);
-        const adminEmailResult = await sendAdminOrderEmail({
-          customerEmail: session.customer_details?.email ?? null,
-          customerName: session.customer_details?.name ?? null,
-          amountTotal: session.amount_total ?? 0,
-          currency: session.currency ?? "usd",
-          sessionId: session.id,
-          items,
-        });
+  const adminEmailResult = await sendAdminOrderEmail({
+    customerEmail: session.customer_details?.email ?? null,
+    customerName: session.customer_details?.name ?? null,
+    amountTotal: session.amount_total ?? 0,
+    currency: session.currency ?? "usd",
+    sessionId: session.id,
+    items,
+  });
 
-        console.log("Admin order email sent:", adminEmailResult);
-      } catch (adminEmailError) {
-        console.error("Admin order email failed:", adminEmailError);
-      }
+  console.log("Admin order email sent:", adminEmailResult);
+} catch (adminEmailError) {
+  console.error("Admin order email failed:", adminEmailError);
+}
     }
 
     return new Response("OK", { status: 200 });
