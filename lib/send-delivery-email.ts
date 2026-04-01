@@ -11,6 +11,7 @@ type SendDeliveryEmailArgs = {
   customerName?: string | null;
   items: DeliveryEmailItem[];
   sessionId: string;
+  orderNumber?: string | number | null;
   deliveryNote?: string | null;
 };
 
@@ -19,6 +20,7 @@ export async function sendDeliveryEmail({
   customerName,
   items,
   sessionId,
+  orderNumber,
   deliveryNote,
 }: SendDeliveryEmailArgs) {
   const itemsHtml = items
@@ -79,10 +81,13 @@ export async function sendDeliveryEmail({
 
             <div style="margin:0 0 24px;padding:16px 18px;border:1px solid #e2e8f0;background:#f8fafc;border-radius:16px;">
               <div style="font-size:13px;color:#64748b;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;">
-                Order reference
+                Order number
               </div>
-              <div style="margin-top:6px;font-size:14px;color:#0f172a;word-break:break-all;">
-                ${sessionId}
+              <div style="margin-top:6px;font-size:22px;font-weight:800;color:#0f172a;">
+                #${orderNumber ?? sessionId}
+              </div>
+              <div style="margin-top:10px;font-size:12px;color:#64748b;word-break:break-all;">
+                Internal reference: ${sessionId}
               </div>
             </div>
 

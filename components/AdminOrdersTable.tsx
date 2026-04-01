@@ -147,6 +147,32 @@ export default function AdminOrdersTable({
       setLoadingId(null);
     }
   }
+  async function resendDelivery(orderId: string) {
+  try {
+    setLoadingId(orderId);
+
+    const res = await fetch("/api/orders/resend-delivery", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ orderId }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      alert(data.error || "Failed to resend delivery email");
+      return;
+    }
+
+    alert("Delivery email resent successfully.");
+  } catch {
+    alert("Something went wrong while resending the delivery email.");
+  } finally {
+    setLoadingId(null);
+  }
+}
 
   function buildFilterHref(status?: string, q?: string) {
     const params = new URLSearchParams();
@@ -395,6 +421,19 @@ export default function AdminOrdersTable({
 >
   {loadingId === order.id ? "Sending..." : "Send Delivery Email"}
 </button>
+
+{order.status === "delivered" && (
+  <button
+    type="button"
+    onClick={() => resendDelivery(order.id)}
+    disabled={loadingId === order.id}
+    className="mt-3 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:opacity-60"
+  >
+    {loadingId === order.id
+      ? "Resending..."
+      : "Resend Delivery Email"}
+  </button>
+)}
   </div>
 </div>
               </div>
