@@ -2,6 +2,7 @@ import Stripe from "stripe";
 import { headers } from "next/headers";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { sendOrderConfirmationEmail } from "@/lib/send-order-confirmation-email";
+import type { OrderEmailItem } from "@/lib/send-order-confirmation-email";
 
 const stripeSecretKey = process.env.STRIPE_SECRET_KEY!;
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
@@ -38,11 +39,11 @@ export async function POST(req: Request) {
         limit: 100,
       });
 
-      const items = lineItems.data.map((item) => ({
-        name: item.description,
-        quantity: item.quantity ?? 1,
-        amount: item.amount_total ?? 0,
-      }));
+   const items: OrderEmailItem[] = lineItems.data.map((item) => ({
+  name: item.description ?? "Digital Product",
+  quantity: item.quantity ?? 1,
+  amount: item.amount_total ?? 0,
+}));
 
       const { error } = await supabaseAdmin.from("orders").insert({
         stripe_session_id: session.id,

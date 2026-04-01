@@ -1,11 +1,10 @@
 import { resend } from "@/lib/resend";
 
-type OrderEmailItem = {
+export type OrderEmailItem = {
   name: string;
   quantity: number;
   amount: number;
 };
-
 type SendOrderConfirmationEmailArgs = {
   customerEmail: string;
   customerName?: string | null;
@@ -15,10 +14,10 @@ type SendOrderConfirmationEmailArgs = {
   sessionId: string;
 };
 
-function formatMoney(amountInCents: number, currency = "usd") {
+function formatMoney(amountInCents: number, currency?: string | null) {
   return new Intl.NumberFormat("en-US", {
     style: "currency",
-    currency: currency.toUpperCase(),
+    currency: (currency ?? "usd").toUpperCase(),
   }).format(amountInCents / 100);
 }
 
