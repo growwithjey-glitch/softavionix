@@ -20,6 +20,7 @@ type OrderRow = {
   }[] | null;
   created_at: string;
   delivered_at: string | null;
+  refunded_at: string | null;
 };
 
 const statuses = ["paid", "purchasing", "delivered", "refunded"];
@@ -147,6 +148,39 @@ export default function AdminOrdersTable({
       setLoadingId(null);
     }
   }
+  async function refundOrder(orderId: string) {
+  const confirmed = window.confirm(
+    "Are you sure you want to refund this order?"
+  );
+
+  if (!confirmed) return;
+
+  try {
+    setLoadingId(orderId);
+
+    const res = await fetch("/api/orders/refund", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ orderId }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      alert(data.error || "Failed to refund order");
+      return;
+    }
+
+    alert("Order refunded successfully.");
+    router.refresh();
+  } catch {
+    alert("Something went wrong while refunding the order.");
+  } finally {
+    setLoadingId(null);
+  }
+}
   async function resendDelivery(orderId: string) {
   try {
     setLoadingId(orderId);
@@ -304,6 +338,11 @@ export default function AdminOrdersTable({
                   <p className="mt-2 text-sm text-slate-500">
                     Created: {new Date(order.created_at).toLocaleString()}
                   </p>
+                  {order.refunded_at && (
+  <p className="mt-1 text-sm text-red-600">
+    Refunded: {new Date(order.refunded_at).toLocaleString()}
+  </p>
+)}
 
                   {order.delivered_at && (
   <p className="mt-1 text-sm text-green-600">
@@ -357,8 +396,7 @@ export default function AdminOrdersTable({
                     />
                   </div>
                 </div>
-
-              <div className="w-full lg:w-[280px]">
+<div className="w-full lg:w-[280px]">
   <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
     <p className="text-sm font-semibold text-slate-900">
       Order Total
@@ -404,38 +442,48 @@ export default function AdminOrdersTable({
       </button>
     </div>
 
-<button
-  type="button"
-  onClick={() => {
-    const note = noteByOrder[order.id] ?? order.delivery_note ?? "";
+    <button
+      type="button"
+      onClick={() => {
+        const note = noteByOrder[order.id] ?? order.delivery_note ?? "";
 
-    if (!note.trim()) {
-      alert("Please enter delivery details before sending.");
-      return;
-    }
+        if (!note.trim()) {
+          alert("Please enter delivery details before sending.");
+          return;
+        }
 
-    sendDelivery(order.id);
-  }}
-  disabled={loadingId === order.id}
-  className="mt-5 w-full rounded-xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:opacity-60"
->
-  {loadingId === order.id ? "Sending..." : "Send Delivery Email"}
-</button>
+        sendDelivery(order.id);
+      }}
+      disabled={loadingId === order.id}
+      className="mt-5 w-full rounded-xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:opacity-60"
+    >
+      {loadingId === order.id ? "Sending..." : "Send Delivery Email"}
+    </button>
 
-{order.status === "delivered" && (
-  <button
-    type="button"
-    onClick={() => resendDelivery(order.id)}
-    disabled={loadingId === order.id}
-    className="mt-3 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:opacity-60"
-  >
-    {loadingId === order.id
-      ? "Resending..."
-      : "Resend Delivery Email"}
-  </button>
-)}
+    {order.status === "delivered" && (
+      <button
+        type="button"
+        onClick={() => resendDelivery(order.id)}
+        disabled={loadingId === order.id}
+        className="mt-3 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:opacity-60"
+      >
+        {loadingId === order.id ? "Resending..." : "Resend Delivery Email"}
+      </button>
+    )}
+
+    {order.status !== "refunded" && (
+      <button
+        type="button"
+        onClick={() => refundOrder(order.id)}
+        disabled={loadingId === order.id}
+        className="mt-3 w-full rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700 transition hover:bg-red-100 disabled:opacity-60"
+      >
+        {loadingId === order.id ? "Refunding..." : "Refund Order"}
+      </button>
+    )}
   </div>
 </div>
+
               </div>
             </div>
           ))}
