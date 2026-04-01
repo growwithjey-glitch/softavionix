@@ -19,6 +19,7 @@ type OrderRow = {
     amount: number;
   }[] | null;
   created_at: string;
+  delivered_at: string | null;
 };
 
 const statuses = ["paid", "purchasing", "delivered", "refunded"];
@@ -277,6 +278,12 @@ export default function AdminOrdersTable({
                   <p className="mt-2 text-sm text-slate-500">
                     Created: {new Date(order.created_at).toLocaleString()}
                   </p>
+
+                  {order.delivered_at && (
+  <p className="mt-1 text-sm text-green-600">
+    Delivered: {new Date(order.delivered_at).toLocaleString()}
+  </p>
+)}
 
                   <div className="mt-5 rounded-2xl border border-slate-200 bg-slate-50 p-4">
                     <p className="text-sm font-semibold text-slate-900">
