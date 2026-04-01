@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -29,10 +30,27 @@ function formatMoney(amountInCents: number | null, currency?: string | null) {
   }).format((amountInCents ?? 0) / 100);
 }
 
+function getStatusTone(status: string | null) {
+  switch (status) {
+    case "paid":
+      return "bg-blue-50 text-blue-700";
+    case "purchasing":
+      return "bg-amber-50 text-amber-700";
+    case "delivered":
+      return "bg-green-50 text-green-700";
+    case "refunded":
+      return "bg-red-50 text-red-700";
+    default:
+      return "bg-slate-100 text-slate-700";
+  }
+}
+
 export default function AdminOrdersTable({
   orders,
+  selectedStatus,
 }: {
   orders: OrderRow[];
+  selectedStatus?: string;
 }) {
   const router = useRouter();
   const [loadingId, setLoadingId] = useState<string | null>(null);
@@ -96,136 +114,165 @@ export default function AdminOrdersTable({
     }
   }
 
-  if (!orders.length) {
-    return (
-      <div className="rounded-3xl border border-slate-200 bg-white p-10 text-center shadow-sm">
-        <h2 className="text-2xl font-semibold text-slate-900">No orders yet</h2>
-        <p className="mt-3 text-slate-600">
-          Orders will appear here after checkout is completed.
-        </p>
-      </div>
-    );
-  }
-
   return (
-    <div className="space-y-5">
-      {orders.map((order) => (
-        <div
-          key={order.id}
-          className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm"
+    <div>
+      <div className="mb-6 flex flex-wrap items-center gap-3">
+        <Link
+          href="/admin/orders"
+          className={`rounded-full px-4 py-2 text-sm font-medium transition ${
+            !selectedStatus
+              ? "bg-black text-white"
+              : "border border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
+          }`}
         >
-          <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
-            <div className="min-w-0 flex-1">
-              <div className="flex flex-wrap items-center gap-3">
-                <h2 className="text-xl font-semibold text-slate-900">
-                  {order.customer_email ?? "No email"}
-                </h2>
+          All
+        </Link>
 
-                <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-slate-700">
-                  {order.status ?? "paid"}
-                </span>
-              </div>
+        {statuses.map((status) => (
+          <Link
+            key={status}
+            href={`/admin/orders?status=${encodeURIComponent(status)}`}
+            className={`rounded-full px-4 py-2 text-sm font-medium capitalize transition ${
+              selectedStatus === status
+                ? "bg-black text-white"
+                : "border border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
+            }`}
+          >
+            {status}
+          </Link>
+        ))}
+      </div>
 
-              <p className="mt-2 text-sm text-slate-500">
-                Order ID: {order.id}
-              </p>
+      {!orders.length ? (
+        <div className="rounded-3xl border border-slate-200 bg-white p-10 text-center shadow-sm">
+          <h2 className="text-2xl font-semibold text-slate-900">No orders found</h2>
+          <p className="mt-3 text-slate-600">
+            There are no orders for this filter yet.
+          </p>
+        </div>
+      ) : (
+        <div className="space-y-5">
+          {orders.map((order) => (
+            <div
+              key={order.id}
+              className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm"
+            >
+              <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-3">
+                    <h2 className="text-xl font-semibold text-slate-900">
+                      {order.customer_email ?? "No email"}
+                    </h2>
 
-              <p className="mt-1 text-sm text-slate-500">
-                Stripe Session: {order.stripe_session_id}
-              </p>
-
-              <p className="mt-1 text-sm text-slate-500">
-                Created: {new Date(order.created_at).toLocaleString()}
-              </p>
-
-              <div className="mt-5 rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                <p className="text-sm font-semibold text-slate-900">
-                  Order Items
-                </p>
-
-                <div className="mt-3 space-y-2">
-                  {(order.items ?? []).map((item, index) => (
-                    <div
-                      key={`${item.name}-${index}`}
-                      className="flex items-center justify-between gap-4 text-sm"
+                    <span
+                      className={`rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wide ${getStatusTone(
+                        order.status
+                      )}`}
                     >
-                      <div className="min-w-0">
-                        <p className="truncate font-medium text-slate-900">
-                          {item.name}
-                        </p>
-                        <p className="text-slate-500">
-                          Qty: {item.quantity}
-                        </p>
-                      </div>
+                      {order.status ?? "paid"}
+                    </span>
+                  </div>
 
-                      <div className="shrink-0 font-semibold text-slate-900">
-                        {formatMoney(item.amount, order.currency)}
-                      </div>
+                  <p className="mt-2 text-sm text-slate-500">
+                    Order ID: {order.id}
+                  </p>
+
+                  <p className="mt-1 text-sm text-slate-500">
+                    Stripe Session: {order.stripe_session_id}
+                  </p>
+
+                  <p className="mt-1 text-sm text-slate-500">
+                    Created: {new Date(order.created_at).toLocaleString()}
+                  </p>
+
+                  <div className="mt-5 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                    <p className="text-sm font-semibold text-slate-900">
+                      Order Items
+                    </p>
+
+                    <div className="mt-3 space-y-2">
+                      {(order.items ?? []).map((item, index) => (
+                        <div
+                          key={`${item.name}-${index}`}
+                          className="flex items-center justify-between gap-4 text-sm"
+                        >
+                          <div className="min-w-0">
+                            <p className="truncate font-medium text-slate-900">
+                              {item.name}
+                            </p>
+                            <p className="text-slate-500">
+                              Qty: {item.quantity}
+                            </p>
+                          </div>
+
+                          <div className="shrink-0 font-semibold text-slate-900">
+                            {formatMoney(item.amount, order.currency)}
+                          </div>
+                        </div>
+                      ))}
                     </div>
-                  ))}
+                  </div>
+
+                  <div className="mt-5">
+                    <label className="text-sm font-semibold text-slate-900">
+                      Delivery note / credentials / instructions
+                    </label>
+                    <textarea
+                      value={noteByOrder[order.id] ?? order.delivery_note ?? ""}
+                      onChange={(e) =>
+                        setNoteByOrder((prev) => ({
+                          ...prev,
+                          [order.id]: e.target.value,
+                        }))
+                      }
+                      rows={5}
+                      placeholder="Paste license key, account details, download link, or instructions here..."
+                      className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none"
+                    />
+                  </div>
+                </div>
+
+                <div className="w-full lg:w-[260px]">
+                  <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                    <p className="text-sm font-semibold text-slate-900">
+                      Order Total
+                    </p>
+                    <p className="mt-2 text-2xl font-semibold text-slate-900">
+                      {formatMoney(order.amount_total, order.currency)}
+                    </p>
+
+                    <label className="mt-5 block text-sm font-medium text-slate-700">
+                      Update Status
+                    </label>
+
+                    <select
+                      value={order.status ?? "paid"}
+                      onChange={(e) => updateStatus(order.id, e.target.value)}
+                      disabled={loadingId === order.id}
+                      className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none"
+                    >
+                      {statuses.map((status) => (
+                        <option key={status} value={status}>
+                          {status}
+                        </option>
+                      ))}
+                    </select>
+
+                    <button
+                      type="button"
+                      onClick={() => sendDelivery(order.id)}
+                      disabled={loadingId === order.id}
+                      className="mt-5 w-full rounded-xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:opacity-60"
+                    >
+                      {loadingId === order.id ? "Sending..." : "Send Delivery Email"}
+                    </button>
+                  </div>
                 </div>
               </div>
-
-              <div className="mt-5">
-                <label className="text-sm font-semibold text-slate-900">
-                  Delivery note / credentials / instructions
-                </label>
-                <textarea
-                  value={noteByOrder[order.id] ?? order.delivery_note ?? ""}
-                  onChange={(e) =>
-                    setNoteByOrder((prev) => ({
-                      ...prev,
-                      [order.id]: e.target.value,
-                    }))
-                  }
-                  rows={5}
-                  placeholder="Paste license key, account details, download link, or instructions here..."
-                  className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none"
-                />
-              </div>
             </div>
-
-            <div className="w-full lg:w-[260px]">
-              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                <p className="text-sm font-semibold text-slate-900">
-                  Order Total
-                </p>
-                <p className="mt-2 text-2xl font-semibold text-slate-900">
-                  {formatMoney(order.amount_total, order.currency)}
-                </p>
-
-                <label className="mt-5 block text-sm font-medium text-slate-700">
-                  Update Status
-                </label>
-
-                <select
-                  value={order.status ?? "paid"}
-                  onChange={(e) => updateStatus(order.id, e.target.value)}
-                  disabled={loadingId === order.id}
-                  className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none"
-                >
-                  {statuses.map((status) => (
-                    <option key={status} value={status}>
-                      {status}
-                    </option>
-                  ))}
-                </select>
-
-                <button
-                  type="button"
-                  onClick={() => sendDelivery(order.id)}
-                  disabled={loadingId === order.id}
-                  className="mt-5 w-full rounded-xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:opacity-60"
-                >
-                  {loadingId === order.id
-                    ? "Sending..."
-                    : "Send Delivery Email"}
-                </button>
-              </div>
-            </div>
-          </div>
+          ))}
         </div>
-      ))}
+      )}
     </div>
   );
 }

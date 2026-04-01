@@ -3,13 +3,32 @@ import AdminOrdersTable from "@/components/AdminOrdersTable";
 
 export const dynamic = "force-dynamic";
 
-export default async function AdminOrdersPage() {
+type AdminOrdersPageProps = {
+  searchParams?: Promise<{
+    status?: string;
+  }>;
+};
+
+const allowedStatuses = ["paid", "purchasing", "delivered", "refunded"];
+
+export default async function AdminOrdersPage({
+  searchParams,
+}: AdminOrdersPageProps) {
+  const params = (await searchParams) || {};
+  const selectedStatus = params.status?.trim() || "";
+
   const supabaseAdmin = getSupabaseAdmin();
 
-  const { data: orders, error } = await supabaseAdmin
+  let query = supabaseAdmin
     .from("orders")
     .select("*")
     .order("created_at", { ascending: false });
+
+  if (selectedStatus && allowedStatuses.includes(selectedStatus)) {
+    query = query.eq("status", selectedStatus);
+  }
+
+  const { data: orders, error } = await query;
 
   if (error) {
     return (
@@ -43,7 +62,10 @@ export default async function AdminOrdersPage() {
           </p>
         </div>
 
-        <AdminOrdersTable orders={orders ?? []} />
+        <AdminOrdersTable
+          orders={orders ?? []}
+          selectedStatus={selectedStatus}
+        />
       </div>
     </main>
   );
