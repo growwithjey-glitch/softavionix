@@ -11,6 +11,7 @@ type OrderRow = {
   amount_total: number | null;
   currency: string | null;
   status: string | null;
+  delivery_note: string | null;
   items: {
     name: string;
     quantity: number;
@@ -35,6 +36,7 @@ export default function AdminOrdersTable({
 }) {
   const router = useRouter();
   const [loadingId, setLoadingId] = useState<string | null>(null);
+  const [noteByOrder, setNoteByOrder] = useState<Record<string, string>>({});
 
   async function updateStatus(orderId: string, status: string) {
     try {
@@ -58,6 +60,37 @@ export default function AdminOrdersTable({
       router.refresh();
     } catch {
       alert("Something went wrong while updating the order status");
+    } finally {
+      setLoadingId(null);
+    }
+  }
+
+  async function sendDelivery(orderId: string) {
+    try {
+      setLoadingId(orderId);
+
+      const res = await fetch("/api/orders/send-delivery", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          orderId,
+          deliveryNote: noteByOrder[orderId] ?? "",
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(data.error || "Failed to send delivery email");
+        return;
+      }
+
+      alert("Delivery email sent successfully.");
+      router.refresh();
+    } catch {
+      alert("Something went wrong while sending the delivery email.");
     } finally {
       setLoadingId(null);
     }
@@ -132,9 +165,27 @@ export default function AdminOrdersTable({
                   ))}
                 </div>
               </div>
+
+              <div className="mt-5">
+                <label className="text-sm font-semibold text-slate-900">
+                  Delivery note / credentials / instructions
+                </label>
+                <textarea
+                  value={noteByOrder[order.id] ?? order.delivery_note ?? ""}
+                  onChange={(e) =>
+                    setNoteByOrder((prev) => ({
+                      ...prev,
+                      [order.id]: e.target.value,
+                    }))
+                  }
+                  rows={5}
+                  placeholder="Paste license key, account details, download link, or instructions here..."
+                  className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none"
+                />
+              </div>
             </div>
 
-            <div className="w-full lg:w-[240px]">
+            <div className="w-full lg:w-[260px]">
               <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
                 <p className="text-sm font-semibold text-slate-900">
                   Order Total
@@ -160,9 +211,16 @@ export default function AdminOrdersTable({
                   ))}
                 </select>
 
-                {loadingId === order.id && (
-                  <p className="mt-3 text-sm text-slate-500">Updating...</p>
-                )}
+                <button
+                  type="button"
+                  onClick={() => sendDelivery(order.id)}
+                  disabled={loadingId === order.id}
+                  className="mt-5 w-full rounded-xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:opacity-60"
+                >
+                  {loadingId === order.id
+                    ? "Sending..."
+                    : "Send Delivery Email"}
+                </button>
               </div>
             </div>
           </div>
