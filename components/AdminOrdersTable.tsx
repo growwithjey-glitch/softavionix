@@ -357,6 +357,17 @@ export default function AdminOrdersTable({
                         </option>
                       ))}
                     </select>
+{order.status !== "purchasing" && (
+  <button
+    type="button"
+    onClick={() => updateStatus(order.id, "purchasing")}
+    disabled={loadingId === order.id}
+    className="mt-4 w-full rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-semibold text-amber-700 transition hover:bg-amber-100 disabled:opacity-60"
+  >
+    {loadingId === order.id ? "Updating..." : "Mark as Purchasing"}
+  </button>
+)}
+
 
                     <button
                       type="button"
