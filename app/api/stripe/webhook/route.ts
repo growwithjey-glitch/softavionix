@@ -3,6 +3,7 @@ import { headers } from "next/headers";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { sendOrderConfirmationEmail } from "@/lib/send-order-confirmation-email";
 import type { OrderEmailItem } from "@/lib/send-order-confirmation-email";
+import { sendAdminOrderEmail } from "@/lib/send-admin-order-email";
 
 const stripeSecretKey = process.env.STRIPE_SECRET_KEY!;
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
@@ -39,11 +40,11 @@ export async function POST(req: Request) {
         limit: 100,
       });
 
-   const items: OrderEmailItem[] = lineItems.data.map((item) => ({
-  name: item.description ?? "Digital Product",
-  quantity: item.quantity ?? 1,
-  amount: item.amount_total ?? 0,
-}));
+      const items: OrderEmailItem[] = lineItems.data.map((item) => ({
+        name: item.description ?? "Digital Product",
+        quantity: item.quantity ?? 1,
+        amount: item.amount_total ?? 0,
+      }));
 
       const { error } = await supabaseAdmin.from("orders").insert({
         stripe_session_id: session.id,
@@ -69,7 +70,10 @@ export async function POST(req: Request) {
 
       if (session.customer_details?.email) {
         try {
-          console.log("Preparing confirmation email for:", session.customer_details.email);
+          console.log(
+            "Preparing confirmation email for:",
+            session.customer_details.email
+          );
 
           const emailResult = await sendOrderConfirmationEmail({
             customerEmail: session.customer_details.email,
@@ -86,6 +90,21 @@ export async function POST(req: Request) {
         }
       } else {
         console.warn("No customer email found on session:", session.id);
+      }
+
+      try {
+        const adminEmailResult = await sendAdminOrderEmail({
+          customerEmail: session.customer_details?.email ?? null,
+          customerName: session.customer_details?.name ?? null,
+          amountTotal: session.amount_total ?? 0,
+          currency: session.currency ?? "usd",
+          sessionId: session.id,
+          items,
+        });
+
+        console.log("Admin order email sent:", adminEmailResult);
+      } catch (adminEmailError) {
+        console.error("Admin order email failed:", adminEmailError);
       }
     }
 
