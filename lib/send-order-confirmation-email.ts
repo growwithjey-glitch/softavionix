@@ -29,6 +29,7 @@ export async function sendOrderConfirmationEmail({
   amountTotal,
   currency = "usd",
   sessionId,
+  orderNumber,
 }: SendOrderConfirmationEmailArgs) {
   const itemsHtml = items
     .map(
@@ -75,14 +76,17 @@ export async function sendOrderConfirmationEmail({
 thank you for your order. Your payment was received successfully and we are now preparing your delivery.
             </p>
 
-            <div style="margin:0 0 24px;padding:16px 18px;border:1px solid #dbeafe;background:#eff6ff;border-radius:16px;">
-              <div style="font-size:13px;color:#1d4ed8;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;">
-                Order reference
-              </div>
-              <div style="margin-top:6px;font-size:14px;color:#0f172a;word-break:break-all;">
-                ${sessionId}
-              </div>
-            </div>
+         <div style="margin:0 0 24px;padding:16px 18px;border:1px solid #dbeafe;background:#eff6ff;border-radius:16px;">
+  <div style="font-size:13px;color:#1d4ed8;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;">
+    Order number
+  </div>
+  <div style="margin-top:6px;font-size:22px;font-weight:800;color:#0f172a;">
+    #${orderNumber}
+  </div>
+  <div style="margin-top:10px;font-size:12px;color:#64748b;">
+    Internal reference: ${sessionId}
+  </div>
+</div>
 
             <h2 style="margin:0 0 14px;font-size:18px;color:#0f172a;">
               Order summary

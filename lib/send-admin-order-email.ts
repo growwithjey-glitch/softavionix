@@ -30,6 +30,7 @@ export async function sendAdminOrderEmail({
   amountTotal,
   currency = "usd",
   sessionId,
+  orderNumber,
 }: SendAdminOrderEmailArgs) {
   const adminEmail = process.env.ADMIN_ORDER_EMAIL;
 
@@ -56,6 +57,17 @@ export async function sendAdminOrderEmail({
     .join("");
 
   const html = `
+  <div style="margin-bottom:20px;padding:16px;border:1px solid #dbeafe;background:#eff6ff;border-radius:14px;">
+  <div style="font-size:13px;font-weight:700;color:#1d4ed8;text-transform:uppercase;">
+    Order number
+  </div>
+  <div style="margin-top:6px;font-size:22px;font-weight:800;color:#0f172a;">
+    #${orderNumber}
+  </div>
+  <div style="margin-top:10px;font-size:12px;color:#64748b;word-break:break-all;">
+    Stripe session: ${sessionId}
+  </div>
+</div>
     <div style="margin:0;padding:24px;background:#f8fafc;font-family:Arial,sans-serif;">
       <div style="max-width:680px;margin:0 auto;background:#ffffff;border:1px solid #e2e8f0;border-radius:20px;overflow:hidden;">
         <div style="background:#0f172a;padding:24px 28px;">

@@ -77,6 +77,7 @@ export async function POST(req: Request) {
       const orderNumber =
         insertedOrder.order_number ??
         `${new Date().getFullYear()}${String(Date.now()).slice(-6)}`;
+      console.log("Generated order number:", orderNumber);
 
       if (!insertedOrder.order_number) {
         const { error: orderNumberError } = await supabaseAdmin
@@ -126,8 +127,9 @@ export async function POST(req: Request) {
           amountTotal: session.amount_total ?? 0,
           currency: session.currency ?? "usd",
           sessionId: session.id,
-          items,
           orderNumber,
+          items,
+          
         });
 
         console.log("Admin order email sent:", adminEmailResult);
