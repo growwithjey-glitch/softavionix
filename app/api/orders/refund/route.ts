@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
+import { sendRefundEmail } from "@/lib/send-refund-email";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
@@ -54,7 +55,19 @@ export async function POST(req: Request) {
         status: "refunded",
         refunded_at: new Date().toISOString(),
       })
+
+ 
       .eq("id", orderId);
+
+           if (order.customer_email) {
+  await sendRefundEmail({
+    customerEmail: order.customer_email,
+    customerName: order.customer_name,
+    amountTotal: order.amount_total,
+    currency: order.currency,
+    orderNumber: order.order_number,
+  });
+}
 
     if (updateError) {
       return NextResponse.json(
