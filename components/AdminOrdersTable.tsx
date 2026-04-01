@@ -378,14 +378,23 @@ export default function AdminOrdersTable({
       </button>
     </div>
 
-    <button
-      type="button"
-      onClick={() => sendDelivery(order.id)}
-      disabled={loadingId === order.id}
-      className="mt-5 w-full rounded-xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:opacity-60"
-    >
-      {loadingId === order.id ? "Sending..." : "Send Delivery Email"}
-    </button>
+<button
+  type="button"
+  onClick={() => {
+    const note = noteByOrder[order.id] ?? order.delivery_note ?? "";
+
+    if (!note.trim()) {
+      alert("Please enter delivery details before sending.");
+      return;
+    }
+
+    sendDelivery(order.id);
+  }}
+  disabled={loadingId === order.id}
+  className="mt-5 w-full rounded-xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:opacity-60"
+>
+  {loadingId === order.id ? "Sending..." : "Send Delivery Email"}
+</button>
   </div>
 </div>
               </div>
