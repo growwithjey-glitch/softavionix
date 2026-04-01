@@ -93,6 +93,7 @@ export async function POST(req: Request) {
       }
 
       try {
+        console.log("Preparing admin order email for:", process.env.ADMIN_ORDER_EMAIL);
         const adminEmailResult = await sendAdminOrderEmail({
           customerEmail: session.customer_details?.email ?? null,
           customerName: session.customer_details?.name ?? null,
