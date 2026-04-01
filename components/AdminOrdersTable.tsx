@@ -411,26 +411,32 @@ export default function AdminOrdersTable({
           >
             <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
               <div className="min-w-0 flex-1">
-                <div className="flex flex-wrap items-center gap-3">
-                  <h2 className="text-xl font-semibold text-slate-900">
-                    {order.customer_email ?? "No email"}
-                  </h2>
+             <div className="flex flex-wrap items-center gap-3">
+  <h2 className="text-xl font-semibold text-slate-900">
+    {order.customer_email ?? "No email"}
+  </h2>
 
-                  {order.customer_email && (
-                    <CopyButton
-                      value={order.customer_email}
-                      label="customer email"
-                    />
-                  )}
+  {order.customer_email && (
+    <CopyButton
+      value={order.customer_email}
+      label="customer email"
+    />
+  )}
 
-                  <span
-                    className={`rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wide ${getStatusTone(
-                      order.status
-                    )}`}
-                  >
-                    {order.status ?? "paid"}
-                  </span>
-                </div>
+  <span
+    className={`rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wide ${getStatusTone(
+      order.status
+    )}`}
+  >
+    {order.status ?? "paid"}
+  </span>
+
+  {order.cost_price === null && order.status !== "refunded" && (
+    <span className="rounded-full bg-amber-50 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-amber-700">
+      Missing Cost
+    </span>
+  )}
+</div>
 
                 {order.order_number && (
                   <div className="mt-3 flex flex-wrap items-center gap-2 text-sm text-slate-500">
@@ -615,7 +621,11 @@ export default function AdminOrdersTable({
                       </p>
                     </div>
                   </div>
-
+{order.cost_price === null && order.status !== "refunded" && (
+  <p className="mt-4 text-sm font-medium text-amber-700">
+    Cost price is missing. Profit is not tracked for this order yet.
+  </p>
+)}
                   <button
                     type="button"
                     onClick={() => saveProfitData(order.id)}
