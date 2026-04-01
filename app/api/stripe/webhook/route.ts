@@ -1,8 +1,10 @@
 import Stripe from "stripe";
 import { headers } from "next/headers";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
-import { sendOrderConfirmationEmail } from "@/lib/send-order-confirmation-email";
-import type { OrderEmailItem } from "@/lib/send-order-confirmation-email";
+import {
+  sendOrderConfirmationEmail,
+  type OrderEmailItem,
+} from "@/lib/send-order-confirmation-email";
 import { sendAdminOrderEmail } from "@/lib/send-admin-order-email";
 
 const stripeSecretKey = process.env.STRIPE_SECRET_KEY!;
@@ -46,27 +48,46 @@ export async function POST(req: Request) {
         amount: item.amount_total ?? 0,
       }));
 
-      const { error } = await supabaseAdmin.from("orders").insert({
-        stripe_session_id: session.id,
-        stripe_payment_intent_id:
-          typeof session.payment_intent === "string"
-            ? session.payment_intent
-            : session.payment_intent?.id ?? null,
-        customer_email: session.customer_details?.email ?? null,
-        customer_name: session.customer_details?.name ?? null,
-        amount_total: session.amount_total ?? 0,
-        currency: session.currency ?? "usd",
-        payment_status: session.payment_status ?? null,
-        status: "paid",
-        items,
-      });
+      const { data: insertedOrder, error } = await supabaseAdmin
+        .from("orders")
+        .insert({
+          stripe_session_id: session.id,
+          stripe_payment_intent_id:
+            typeof session.payment_intent === "string"
+              ? session.payment_intent
+              : session.payment_intent?.id ?? null,
+          customer_email: session.customer_details?.email ?? null,
+          customer_name: session.customer_details?.name ?? null,
+          amount_total: session.amount_total ?? 0,
+          currency: session.currency ?? "usd",
+          payment_status: session.payment_status ?? null,
+          status: "paid",
+          items,
+        })
+        .select()
+        .single();
 
-      if (error) {
+      if (error || !insertedOrder) {
         console.error("Database error:", error);
         return new Response("Database error", { status: 500 });
       }
 
-      console.log("Order saved:", session.id);
+      console.log("Order saved:", insertedOrder.id);
+
+      const orderNumber =
+        insertedOrder.order_number ??
+        `${new Date().getFullYear()}${String(Date.now()).slice(-6)}`;
+
+      if (!insertedOrder.order_number) {
+        const { error: orderNumberError } = await supabaseAdmin
+          .from("orders")
+          .update({ order_number: orderNumber })
+          .eq("id", insertedOrder.id);
+
+        if (orderNumberError) {
+          console.error("Order number update failed:", orderNumberError);
+        }
+      }
 
       if (session.customer_details?.email) {
         try {
@@ -81,6 +102,7 @@ export async function POST(req: Request) {
             amountTotal: session.amount_total ?? 0,
             currency: session.currency ?? "usd",
             sessionId: session.id,
+            orderNumber,
             items,
           });
 
@@ -91,23 +113,27 @@ export async function POST(req: Request) {
       } else {
         console.warn("No customer email found on session:", session.id);
       }
-console.log("ADMIN EMAIL BLOCK REACHED");
-     try {
-  console.log("Preparing admin order email for:", process.env.ADMIN_ORDER_EMAIL);
 
-  const adminEmailResult = await sendAdminOrderEmail({
-    customerEmail: session.customer_details?.email ?? null,
-    customerName: session.customer_details?.name ?? null,
-    amountTotal: session.amount_total ?? 0,
-    currency: session.currency ?? "usd",
-    sessionId: session.id,
-    items,
-  });
+      try {
+        console.log(
+          "Preparing admin order email for:",
+          process.env.ADMIN_ORDER_EMAIL
+        );
 
-  console.log("Admin order email sent:", adminEmailResult);
-} catch (adminEmailError) {
-  console.error("Admin order email failed:", adminEmailError);
-}
+        const adminEmailResult = await sendAdminOrderEmail({
+          customerEmail: session.customer_details?.email ?? null,
+          customerName: session.customer_details?.name ?? null,
+          amountTotal: session.amount_total ?? 0,
+          currency: session.currency ?? "usd",
+          sessionId: session.id,
+          items,
+          orderNumber,
+        });
+
+        console.log("Admin order email sent:", adminEmailResult);
+      } catch (adminEmailError) {
+        console.error("Admin order email failed:", adminEmailError);
+      }
     }
 
     return new Response("OK", { status: 200 });

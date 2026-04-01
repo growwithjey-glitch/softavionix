@@ -3,11 +3,12 @@ import { sendOrderConfirmationEmail } from "@/lib/send-order-confirmation-email"
 export async function GET() {
   try {
     const result = await sendOrderConfirmationEmail({
-      customerEmail: "jeywfg@gmail.com",
+      customerEmail: "YOUR_REAL_EMAIL_HERE",
       customerName: "Test Customer",
       amountTotal: 2999,
       currency: "usd",
       sessionId: "test-session-123",
+      orderNumber: "1001",
       items: [
         {
           name: "Test Product",

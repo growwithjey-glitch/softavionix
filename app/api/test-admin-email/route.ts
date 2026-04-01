@@ -8,6 +8,7 @@ export async function GET() {
       amountTotal: 2999,
       currency: "usd",
       sessionId: "admin-test-session-123",
+      orderNumber: "1001",
       items: [
         {
           name: "Test Product",

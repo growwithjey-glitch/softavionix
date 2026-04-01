@@ -12,6 +12,7 @@ type SendOrderConfirmationEmailArgs = {
   amountTotal: number;
   currency?: string | null;
   sessionId: string;
+  orderNumber: string | number;
 };
 
 function formatMoney(amountInCents: number, currency?: string | null) {
