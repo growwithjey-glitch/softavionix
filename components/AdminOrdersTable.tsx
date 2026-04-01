@@ -332,53 +332,62 @@ export default function AdminOrdersTable({
                   </div>
                 </div>
 
-                <div className="w-full lg:w-[260px]">
-                  <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                    <p className="text-sm font-semibold text-slate-900">
-                      Order Total
-                    </p>
-                    <p className="mt-2 text-2xl font-semibold text-slate-900">
-                      {formatMoney(order.amount_total, order.currency)}
-                    </p>
+              <div className="w-full lg:w-[280px]">
+  <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+    <p className="text-sm font-semibold text-slate-900">
+      Order Total
+    </p>
+    <p className="mt-2 text-2xl font-semibold text-slate-900">
+      {formatMoney(order.amount_total, order.currency)}
+    </p>
 
-                    <label className="mt-5 block text-sm font-medium text-slate-700">
-                      Update Status
-                    </label>
+    <label className="mt-5 block text-sm font-medium text-slate-700">
+      Update Status
+    </label>
 
-                    <select
-                      value={order.status ?? "paid"}
-                      onChange={(e) => updateStatus(order.id, e.target.value)}
-                      disabled={loadingId === order.id}
-                      className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none"
-                    >
-                      {statuses.map((status) => (
-                        <option key={status} value={status}>
-                          {status}
-                        </option>
-                      ))}
-                    </select>
-{order.status !== "purchasing" && (
-  <button
-    type="button"
-    onClick={() => updateStatus(order.id, "purchasing")}
-    disabled={loadingId === order.id}
-    className="mt-4 w-full rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-semibold text-amber-700 transition hover:bg-amber-100 disabled:opacity-60"
-  >
-    {loadingId === order.id ? "Updating..." : "Mark as Purchasing"}
-  </button>
-)}
+    <select
+      value={order.status ?? "paid"}
+      onChange={(e) => updateStatus(order.id, e.target.value)}
+      disabled={loadingId === order.id}
+      className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none"
+    >
+      {statuses.map((status) => (
+        <option key={status} value={status}>
+          {status}
+        </option>
+      ))}
+    </select>
 
+    <div className="mt-4 grid grid-cols-2 gap-3">
+      <button
+        type="button"
+        onClick={() => updateStatus(order.id, "purchasing")}
+        disabled={loadingId === order.id || order.status === "purchasing"}
+        className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-semibold text-amber-700 transition hover:bg-amber-100 disabled:opacity-50"
+      >
+        {order.status === "purchasing" ? "Purchasing" : "Mark Purchasing"}
+      </button>
 
-                    <button
-                      type="button"
-                      onClick={() => sendDelivery(order.id)}
-                      disabled={loadingId === order.id}
-                      className="mt-5 w-full rounded-xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:opacity-60"
-                    >
-                      {loadingId === order.id ? "Sending..." : "Send Delivery Email"}
-                    </button>
-                  </div>
-                </div>
+      <button
+        type="button"
+        onClick={() => updateStatus(order.id, "delivered")}
+        disabled={loadingId === order.id || order.status === "delivered"}
+        className="rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm font-semibold text-green-700 transition hover:bg-green-100 disabled:opacity-50"
+      >
+        {order.status === "delivered" ? "Delivered" : "Mark Delivered"}
+      </button>
+    </div>
+
+    <button
+      type="button"
+      onClick={() => sendDelivery(order.id)}
+      disabled={loadingId === order.id}
+      className="mt-5 w-full rounded-xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:opacity-60"
+    >
+      {loadingId === order.id ? "Sending..." : "Send Delivery Email"}
+    </button>
+  </div>
+</div>
               </div>
             </div>
           ))}
