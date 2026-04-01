@@ -6,6 +6,7 @@ export const dynamic = "force-dynamic";
 type AdminOrdersPageProps = {
   searchParams?: Promise<{
     status?: string;
+    q?: string;
   }>;
 };
 
@@ -16,6 +17,7 @@ export default async function AdminOrdersPage({
 }: AdminOrdersPageProps) {
   const params = (await searchParams) || {};
   const selectedStatus = params.status?.trim() || "";
+  const searchQuery = params.q?.trim() || "";
 
   const supabaseAdmin = getSupabaseAdmin();
 
@@ -26,6 +28,12 @@ export default async function AdminOrdersPage({
 
   if (selectedStatus && allowedStatuses.includes(selectedStatus)) {
     query = query.eq("status", selectedStatus);
+  }
+
+  if (searchQuery) {
+    query = query.or(
+      `customer_email.ilike.%${searchQuery}%,id.ilike.%${searchQuery}%,stripe_session_id.ilike.%${searchQuery}%`
+    );
   }
 
   const { data: orders, error } = await query;
@@ -65,6 +73,7 @@ export default async function AdminOrdersPage({
         <AdminOrdersTable
           orders={orders ?? []}
           selectedStatus={selectedStatus}
+          searchQuery={searchQuery}
         />
       </div>
     </main>

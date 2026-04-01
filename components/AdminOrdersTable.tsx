@@ -48,13 +48,16 @@ function getStatusTone(status: string | null) {
 export default function AdminOrdersTable({
   orders,
   selectedStatus,
+  searchQuery = "",
 }: {
   orders: OrderRow[];
   selectedStatus?: string;
+  searchQuery?: string;
 }) {
   const router = useRouter();
   const [loadingId, setLoadingId] = useState<string | null>(null);
   const [noteByOrder, setNoteByOrder] = useState<Record<string, string>>({});
+  const [searchInput, setSearchInput] = useState(searchQuery);
 
   async function updateStatus(orderId: string, status: string) {
     try {
@@ -114,40 +117,88 @@ export default function AdminOrdersTable({
     }
   }
 
+  function buildFilterHref(status?: string, q?: string) {
+    const params = new URLSearchParams();
+
+    if (status) {
+      params.set("status", status);
+    }
+
+    if (q) {
+      params.set("q", q);
+    }
+
+    return `/admin/orders${params.toString() ? `?${params.toString()}` : ""}`;
+  }
+
+  function handleSearchSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    router.push(buildFilterHref(selectedStatus, searchInput.trim()));
+  }
+
   return (
     <div>
-      <div className="mb-6 flex flex-wrap items-center gap-3">
-        <Link
-          href="/admin/orders"
-          className={`rounded-full px-4 py-2 text-sm font-medium transition ${
-            !selectedStatus
-              ? "bg-black text-white"
-              : "border border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
-          }`}
-        >
-          All
-        </Link>
+      <div className="mb-6 rounded-[28px] border border-slate-200 bg-white p-5 shadow-sm">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <form onSubmit={handleSearchSubmit} className="flex flex-1 gap-3">
+            <input
+              type="text"
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              placeholder="Search by customer email, order ID, or Stripe session ID"
+              className="w-full rounded-full border border-slate-200 bg-white px-5 py-3 text-sm text-slate-900 outline-none"
+            />
+            <button
+              type="submit"
+              className="rounded-full bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800"
+            >
+              Search
+            </button>
+          </form>
 
-        {statuses.map((status) => (
+          {(selectedStatus || searchQuery) && (
+            <Link
+              href="/admin/orders"
+              className="rounded-full border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-600 transition hover:bg-red-100"
+            >
+              Clear Filters
+            </Link>
+          )}
+        </div>
+
+        <div className="mt-4 flex flex-wrap items-center gap-3">
           <Link
-            key={status}
-            href={`/admin/orders?status=${encodeURIComponent(status)}`}
-            className={`rounded-full px-4 py-2 text-sm font-medium capitalize transition ${
-              selectedStatus === status
+            href={buildFilterHref("", searchQuery)}
+            className={`rounded-full px-4 py-2 text-sm font-medium transition ${
+              !selectedStatus
                 ? "bg-black text-white"
                 : "border border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
             }`}
           >
-            {status}
+            All
           </Link>
-        ))}
+
+          {statuses.map((status) => (
+            <Link
+              key={status}
+              href={buildFilterHref(status, searchQuery)}
+              className={`rounded-full px-4 py-2 text-sm font-medium capitalize transition ${
+                selectedStatus === status
+                  ? "bg-black text-white"
+                  : "border border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
+              }`}
+            >
+              {status}
+            </Link>
+          ))}
+        </div>
       </div>
 
       {!orders.length ? (
         <div className="rounded-3xl border border-slate-200 bg-white p-10 text-center shadow-sm">
           <h2 className="text-2xl font-semibold text-slate-900">No orders found</h2>
           <p className="mt-3 text-slate-600">
-            There are no orders for this filter yet.
+            Try a different search or filter.
           </p>
         </div>
       ) : (
