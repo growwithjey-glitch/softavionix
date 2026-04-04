@@ -80,17 +80,28 @@ export default async function AdminOrdersPage({
   return (
     <main className="bg-[#f7f6f1]">
       <div className="mx-auto max-w-7xl px-6 py-16 md:px-8">
-        <div className="mb-8">
-          <p className="text-sm uppercase tracking-[0.2em] text-slate-500">
-            Admin
-          </p>
-          <h1 className="mt-2 text-4xl font-semibold text-slate-900">
-            Orders
-          </h1>
-          <p className="mt-3 text-slate-600">
-            Review paid orders, track costs, and manage fulfillment.
-          </p>
-        </div>
+      <div className="mb-8 flex items-center justify-between">
+  <div>
+    <p className="text-sm uppercase tracking-[0.2em] text-slate-500">
+      Admin
+    </p>
+
+    <h1 className="mt-2 text-4xl font-semibold text-slate-900">
+      Orders
+    </h1>
+
+    <p className="mt-3 text-slate-600">
+      Review paid orders, track costs, and manage fulfillment.
+    </p>
+  </div>
+
+  <a
+    href="/api/admin/logout"
+    className="rounded-full border border-slate-200 bg-white px-5 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+  >
+    Logout
+  </a>
+</div>
 
         <div className="mb-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
           <div className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm">
