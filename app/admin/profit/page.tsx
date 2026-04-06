@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
+import ProfitChart from "@/components/ProfitChart";
 
 export const dynamic = "force-dynamic";
 
@@ -144,6 +145,45 @@ export default async function AdminProfitPage({
   ).length;
 
   const recentOrders = safeOrders.slice(0, 8);
+  const monthlyMap = new Map<
+  string,
+  { label: string; revenue: number; cost: number; profit: number }
+>();
+
+for (const order of allSafeOrders) {
+  const createdAt = new Date(order.created_at);
+  const key = `${createdAt.getFullYear()}-${String(
+    createdAt.getMonth() + 1
+  ).padStart(2, "0")}`;
+
+  const label = createdAt.toLocaleString("en-US", {
+    month: "short",
+    year: "numeric",
+  });
+
+  const revenue = order.amount_total ?? 0;
+  const cost = order.cost_price ?? 0;
+  const profit = revenue - cost;
+
+  if (!monthlyMap.has(key)) {
+    monthlyMap.set(key, {
+      label,
+      revenue: 0,
+      cost: 0,
+      profit: 0,
+    });
+  }
+
+  const current = monthlyMap.get(key)!;
+  current.revenue += revenue;
+  current.cost += cost;
+  current.profit += profit;
+}
+
+const monthlyChartData = Array.from(monthlyMap.entries())
+  .sort(([a], [b]) => a.localeCompare(b))
+  .slice(-6)
+  .map(([, value]) => value);
 
   const currentMonthBounds = getMonthBounds(0);
   const lastMonthBounds = getMonthBounds(-1);
@@ -374,7 +414,9 @@ export default async function AdminProfitPage({
             </p>
           </Link>
         </div>
-
+<div className="mt-10">
+  <ProfitChart data={monthlyChartData} />
+</div>
         <div className="mt-10 rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm">
           <div className="flex items-center justify-between gap-4">
             <div>
