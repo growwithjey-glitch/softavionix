@@ -184,6 +184,46 @@ const monthlyChartData = Array.from(monthlyMap.entries())
   .sort(([a], [b]) => a.localeCompare(b))
   .slice(-6)
   .map(([, value]) => value);
+const productMap = new Map<
+  string,
+  { name: string; orders: number; revenue: number; profit: number }
+>();
+
+for (const order of allSafeOrders) {
+  const items = Array.isArray(order.items) ? order.items : [];
+  const orderCost = order.cost_price ?? 0;
+  const orderRevenue = order.amount_total ?? 0;
+  const orderProfit = orderRevenue - orderCost;
+
+  for (const item of items) {
+    const itemName = item.name || "Unknown Product";
+    const itemRevenue = item.amount ?? 0;
+
+    if (!productMap.has(itemName)) {
+      productMap.set(itemName, {
+        name: itemName,
+        orders: 0,
+        revenue: 0,
+        profit: 0,
+      });
+    }
+
+    const current = productMap.get(itemName)!;
+    current.orders += item.quantity ?? 1;
+    current.revenue += itemRevenue;
+
+    // approximate profit allocation based on revenue share in the order
+    const revenueShare =
+      orderRevenue > 0 ? itemRevenue / orderRevenue : 0;
+
+    current.profit += Math.round(orderProfit * revenueShare);
+  }
+}
+
+const topProducts = Array.from(productMap.values())
+  .sort((a, b) => b.revenue - a.revenue)
+  .slice(0, 8);
+
 
   const currentMonthBounds = getMonthBounds(0);
   const lastMonthBounds = getMonthBounds(-1);
@@ -416,6 +456,49 @@ const monthlyChartData = Array.from(monthlyMap.entries())
         </div>
 <div className="mt-10">
   <ProfitChart data={monthlyChartData} />
+</div>
+<div className="mt-10 rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm">
+  <div className="flex items-center justify-between gap-4">
+    <div>
+      <h2 className="text-2xl font-semibold text-slate-900">
+        Top Products
+      </h2>
+      <p className="mt-2 text-sm text-slate-600">
+        Best-performing products by revenue.
+      </p>
+    </div>
+  </div>
+
+  <div className="mt-6 overflow-x-auto">
+    <table className="min-w-full border-separate border-spacing-y-3">
+      <thead>
+        <tr className="text-left text-sm text-slate-500">
+          <th className="px-3">Product</th>
+          <th className="px-3">Units</th>
+          <th className="px-3">Revenue</th>
+          <th className="px-3">Profit</th>
+        </tr>
+      </thead>
+      <tbody>
+        {topProducts.map((product) => (
+          <tr key={product.name} className="rounded-2xl bg-slate-50">
+            <td className="px-3 py-4 text-sm font-semibold text-slate-900">
+              {product.name}
+            </td>
+            <td className="px-3 py-4 text-sm text-slate-700">
+              {product.orders}
+            </td>
+            <td className="px-3 py-4 text-sm font-medium text-slate-900">
+              {formatMoney(product.revenue)}
+            </td>
+            <td className="px-3 py-4 text-sm font-semibold text-green-700">
+              {formatMoney(product.profit)}
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
 </div>
         <div className="mt-10 rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm">
           <div className="flex items-center justify-between gap-4">
