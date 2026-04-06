@@ -86,21 +86,18 @@ const reviews = [
       "Received my license key within minutes. Activated perfectly with no issues.",
     name: "Daniel R.",
     location: "Canada",
-    tone: "border-green-100 bg-green-50",
   },
   {
     quote:
       "Everything worked exactly as described. Clear delivery and great support.",
     name: "Ahmed K.",
     location: "UAE",
-    tone: "border-slate-200 bg-slate-100",
   },
   {
     quote:
       "Best price I found online. Fast email delivery and easy activation.",
     name: "Sofia M.",
     location: "Spain",
-    tone: "border-amber-100 bg-amber-50",
   },
 ];
 
@@ -407,105 +404,122 @@ export default function HomePage() {
           </div>
         </div>
       </section>
-
       {/* Reviews */}
-      <section className="mx-auto max-w-7xl px-6 py-14 md:px-8">
-        <div className="text-center">
-          <h2 className="text-4xl font-semibold tracking-tight text-black">
-            Trusted by Customers Worldwide
-          </h2>
-          <p className="mt-3 text-base text-[#6b7280]">
-            Based on feedback from recent buyers
-          </p>
+<section className="mx-auto max-w-7xl px-6 py-16 md:px-8">
+  <div className="mx-auto max-w-2xl text-center">
+    <p className="text-sm font-semibold uppercase tracking-[0.2em] text-blue-600">
+      Trust
+    </p>
+    <h2 className="mt-3 text-4xl font-semibold tracking-tight text-slate-900 md:text-5xl">
+      Trusted by Customers Worldwide
+    </h2>
+    <p className="mt-4 text-base text-slate-600 md:text-lg">
+      Fast delivery, secure checkout, and support when you need it.
+    </p>
+  </div>
+
+  <div className="mt-10 grid gap-6 md:grid-cols-3">
+    {reviews.map((review) => (
+      <div
+        key={review.name}
+        className="rounded-[30px] border border-slate-200 bg-white p-7 shadow-sm transition hover:-translate-y-1 hover:shadow-lg"
+      >
+        <div className="text-2xl tracking-[0.18em] text-amber-400">
+          ★★★★★
         </div>
 
-        <div className="mt-10 grid gap-6 md:grid-cols-3">
-          {reviews.map((review) => (
-            <div
-              key={review.name}
-              className={`rounded-3xl border p-6 shadow-sm ${review.tone}`}
-            >
-              <div className="text-2xl text-amber-500">★★★★★</div>
-              <p className="mt-4 text-lg leading-8 text-[#3f3f3f]">
-                “{review.quote}”
-              </p>
-              <p className="mt-5 text-lg font-semibold text-[#4a4a4a]">
-                — {review.name},{" "}
-                <span className="font-normal text-[#6b7280]">
-                  {review.location}
-                </span>
-              </p>
-            </div>
-          ))}
-        </div>
+        <p className="mt-5 text-lg leading-8 text-slate-700">
+          “{review.quote}”
+        </p>
 
-        <div className="mx-auto mt-8 max-w-4xl rounded-2xl border border-green-200 bg-green-50 px-6 py-4 text-center text-lg font-medium text-[#2f2f2f]">
-          🛡️ Buyer Protection — Replacement or refund where applicable
-        </div>
-      </section>
+        <div className="mt-7 flex items-center justify-between gap-4 border-t border-slate-100 pt-5">
+          <div>
+            <p className="text-lg font-semibold text-slate-900">
+              {review.name}
+            </p>
+            <p className="text-sm text-slate-500">{review.location}</p>
+          </div>
 
-      {/* FAQ Preview */}
-      <section className="mx-auto max-w-5xl px-6 py-12 md:px-8">
-        <div className="text-center">
-          <h2 className="text-5xl font-semibold tracking-tight text-black">
-            FAQ
-          </h2>
-        </div>
-
-        <div className="mt-10 space-y-4">
-          {faqs.map((faq, index) => {
-            const tones = [
-              "border-green-100 bg-green-50",
-              "border-slate-200 bg-slate-100",
-              "border-amber-100 bg-amber-50",
-              "border-fuchsia-100 bg-fuchsia-50",
-            ];
-            const tone = tones[index % tones.length];
-
-            return (
-              <div
-                key={faq}
-                className={`flex items-center justify-between rounded-3xl border px-6 py-6 shadow-sm ${tone}`}
-              >
-                <div className="flex items-center gap-4">
-                  <div className="grid h-10 w-10 place-items-center rounded-xl bg-white text-xl shadow-sm">
-                    ✔
-                  </div>
-                  <p className="text-xl font-medium text-[#2f2f2f] md:text-2xl">
-                    {faq}
-                  </p>
-                </div>
-
-                <div className="grid h-10 w-10 place-items-center rounded-xl bg-white text-lg text-[#6b7280] shadow-sm">
-                  ˅
-                </div>
-              </div>
-            );
-          })}
-        </div>
-
-        <div className="mt-16 rounded-3xl border border-blue-100 bg-blue-50 px-6 py-5 shadow-sm">
-          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            <div className="flex items-center gap-4">
-              <div className="grid h-12 w-12 place-items-center rounded-2xl bg-blue-100 text-xl">
-                👩‍💼
-              </div>
-              <div>
-                <p className="text-2xl font-semibold text-[#2f2f2f]">
-                  Real Human Support
-                </p>
-                <p className="text-lg text-[#5b5b5b]">
-                  We reply within 24 hours, usually faster
-                </p>
-              </div>
-            </div>
-
-            <div className="rounded-full border border-slate-200 bg-white px-5 py-3 text-base font-semibold text-[#2f2f2f]">
-              📧 support@softavionix.com
-            </div>
+          <div className="rounded-full bg-slate-100 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-600">
+            Verified
           </div>
         </div>
-      </section>
+      </div>
+    ))}
+  </div>
+
+  <div className="mx-auto mt-8 max-w-5xl rounded-[28px] border border-slate-200 bg-slate-900 px-6 py-5 text-center shadow-sm">
+    <p className="text-base font-medium text-white md:text-lg">
+      Buyer Protection — Replacement or refund where applicable
+    </p>
+    <p className="mt-2 text-sm text-slate-300">
+      Digital delivery by email • Clear policies • Human support
+    </p>
+  </div>
+</section>
+
+      {/* FAQ Preview */}
+      {/* FAQ Preview */}
+<section className="mx-auto max-w-5xl px-6 py-16 md:px-8">
+  <div className="mx-auto max-w-2xl text-center">
+    <p className="text-sm font-semibold uppercase tracking-[0.2em] text-blue-600">
+      Support
+    </p>
+    <h2 className="mt-3 text-4xl font-semibold tracking-tight text-slate-900 md:text-5xl">
+      Frequently Asked Questions
+    </h2>
+    <p className="mt-4 text-base text-slate-600 md:text-lg">
+      Clear answers before you place your order.
+    </p>
+  </div>
+
+  <div className="mt-10 space-y-4">
+    {faqs.map((faq, index) => (
+      <div
+        key={faq}
+        className="group rounded-[28px] border border-slate-200 bg-white px-6 py-5 shadow-sm transition hover:shadow-md"
+      >
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-slate-200 bg-slate-50 text-sm font-semibold text-slate-900">
+              {index + 1}
+            </div>
+
+            <p className="text-lg font-semibold text-slate-900 md:text-xl">
+              {faq}
+            </p>
+          </div>
+
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-500 transition group-hover:border-blue-200 group-hover:text-blue-600">
+            ˅
+          </div>
+        </div>
+      </div>
+    ))}
+  </div>
+
+  <div className="mt-12 rounded-[28px] border border-slate-200 bg-white px-6 py-6 shadow-sm">
+    <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+      <div className="flex items-center gap-4">
+        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-50 text-xl">
+          👩‍💼
+        </div>
+        <div>
+          <p className="text-xl font-semibold text-slate-900">
+            Real Human Support
+          </p>
+          <p className="text-sm text-slate-600 md:text-base">
+            We reply within 24 hours, usually faster
+          </p>
+        </div>
+      </div>
+
+      <div className="rounded-full border border-slate-200 bg-slate-50 px-5 py-3 text-sm font-semibold text-slate-800 md:text-base">
+        📧 support@softavionix.com
+      </div>
+    </div>
+  </div>
+</section>
 
       {/* Final CTA */}
       <section className="mx-auto max-w-7xl px-6 pb-16 pt-6 md:px-8">

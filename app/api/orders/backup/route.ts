@@ -14,7 +14,7 @@ export async function GET(req: Request) {
 const cronSecret = process.env.CRON_SECRET;
 const userAgent = req.headers.get("user-agent") || "";
 
-const isVercelCron = true;
+const isVercelCron = userAgent.includes("vercel-cron/1.0");
 
 if (!isVercelCron && cronSecret && authHeader !== `Bearer ${cronSecret}`) {
   return new Response("Unauthorized", { status: 401 });
