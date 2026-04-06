@@ -17,7 +17,7 @@ export const products: Product[] = [
     slug: "amazon-prime-video-12-month-subscription-global",
     name: "Amazon Prime Video – 12-Month Subscription (Global)",
     price: 35.99,
-    image: "/products/amazon-prime-video-12-month.jpg",
+    image: "/products/primevideo.png",
     shortDescription: "12-month digital subscription with global access.",
     description:
       "Digital subscription fulfilled by email after payment confirmation.",
@@ -40,7 +40,7 @@ export const products: Product[] = [
     slug: "avg-secure-vpn-5-devices-1-year",
     name: "AVG Secure VPN – 5 Devices | 1 Year",
     price: 9.99,
-    image: "/products/avg-secure-vpn-5-devices-1-year.jpg",
+    image: "/products/avgvpn.png",
     shortDescription: "VPN protection for up to 5 devices for 1 year.",
     description:
       "Digital software license delivered electronically after successful order.",
@@ -51,7 +51,7 @@ export const products: Product[] = [
     slug: "avg-ultimate-10-devices-1-year",
     name: "AVG Ultimate – 10 Devices | 1 Year",
     price: 21.99,
-    image: "/products/avg-ultimate-10-devices-1-year.jpg",
+    image: "/products/avgvpn.png",
     shortDescription: "Security suite for up to 10 devices for 1 year.",
     description:
       "Digital software license delivered electronically after successful order.",
@@ -62,7 +62,7 @@ export const products: Product[] = [
     slug: "avg-ultimate-10-devices-2-years",
     name: "AVG Ultimate – 10 Devices | 2 Years",
     price: 29.99,
-    image: "/products/avg-ultimate-10-devices-2-years.jpg",
+    image: "/products/avgvpn.png",
     shortDescription: "Security suite for up to 10 devices for 2 years.",
     description:
       "Digital software license delivered electronically after successful order.",
@@ -73,7 +73,7 @@ export const products: Product[] = [
     slug: "canva-education-2-year-subscription-global",
     name: "Canva Education – 2-Year Subscription (Global)",
     price: 19.99,
-    image: "/products/canva-education-2-year.jpg",
+    image: "/products/canva-cover.png",
     shortDescription: "2-year digital subscription with global access.",
     description:
       "Digital subscription fulfilled by email after payment confirmation.",
@@ -84,7 +84,7 @@ export const products: Product[] = [
     slug: "chatgpt-go-1-year-subscription-global",
     name: "ChatGPT Go – 1-Year Subscription (Global)",
     price: 34.99,
-    image: "/products/chatgpt-go-1-year.jpg",
+    image: "/products/chatgpt-cover.png",
     shortDescription: "1-year digital subscription with global access.",
     description:
       "Digital subscription fulfilled by email after payment confirmation.",
@@ -96,7 +96,7 @@ export const products: Product[] = [
     slug: "chatgpt-plus-1-month-subscription-global",
     name: "ChatGPT Plus – 1-Month Subscription (Global)",
     price: 10.99,
-    image: "/products/chatgpt-plus-1-month.jpg",
+    image: "/products/chatgpt-cover.png",
     shortDescription: "1-month digital subscription with global access.",
     description:
       "Digital subscription fulfilled by email after payment confirmation.",
@@ -107,7 +107,7 @@ export const products: Product[] = [
     slug: "gemini-advanced-12-months-global-account-instant-access",
     name: "Gemini Advanced 12 Months | Global Account | Instant Access",
     price: 34.99,
-    image: "/products/gemini-advanced-12-months.jpg",
+    image: "/products/gemini-cover.png",
     shortDescription: "12-month digital subscription with global access.",
     description:
       "Digital subscription fulfilled by email after payment confirmation.",
@@ -119,7 +119,7 @@ export const products: Product[] = [
     slug: "mcafee-antivirus-1-device-1-year",
     name: "McAfee AntiVirus – 1 Device | 1 Year",
     price: 15.99,
-    image: "/products/mcafee-antivirus-1-device-1-year.jpg",
+    image: "/products/mcafee1year-cover.png",
     shortDescription: "Antivirus protection for 1 device for 1 year.",
     description:
       "Digital software license delivered electronically after successful order.",
@@ -130,7 +130,7 @@ export const products: Product[] = [
     slug: "mcafee-antivirus-1-device-3-years",
     name: "McAfee AntiVirus – 1 Device | 3 Years",
     price: 24.99,
-    image: "/products/mcafee-antivirus-1-device-3-years.jpg",
+    image: "/products/mcafee1year-cover.png",
     shortDescription: "Antivirus protection for 1 device for 3 years.",
     description:
       "Digital software license delivered electronically after successful order.",
@@ -153,7 +153,7 @@ export const products: Product[] = [
     slug: "microsoft-office-365-education-5-devices-1-year",
     name: "Microsoft Office 365 Education – 5 Devices | 1 Year",
     price: 15.99,
-    image: "/products/microsoft-office-365-education-5-devices-1-year.jpg",
+    image: "/products/office365.png",
     shortDescription: "Office subscription for up to 5 devices for 1 year.",
     description:
       "Digital software access fulfilled electronically after payment confirmation.",
@@ -175,7 +175,7 @@ export const products: Product[] = [
     slug: "perplexity-pro-1-year-subscription-global",
     name: "Perplexity Pro – 1-Year Subscription (Global)",
     price: 20.99,
-    image: "/products/perplexity-pro-1-year.jpg",
+    image: "/products/perplexity-cover.png",
     shortDescription: "1-year digital subscription with global access.",
     description:
       "Digital subscription fulfilled by email after payment confirmation.",
@@ -186,7 +186,7 @@ export const products: Product[] = [
     slug: "spotify-premium-12-month-subscription-global",
     name: "Spotify Premium – 12-Month Subscription (Global)",
     price: 49.99,
-    image: "/products/spotify-premium-12-month.jpg",
+    image: "/products/spotify-cover.png",
     shortDescription: "12-month digital subscription with global access.",
     description:
       "Digital subscription fulfilled by email after payment confirmation.",
@@ -198,7 +198,7 @@ export const products: Product[] = [
     slug: "windows-11-pro-perpetual-license",
     name: "Windows 11 Pro – Perpetual License",
     price: 34.99,
-    image: "/products/windows-11-pro-perpetual-license.jpg",
+    image: "/products/windows11.png",
     shortDescription: "One-time perpetual Windows 11 Pro license.",
     description:
       "Digital operating system license delivered electronically after successful order.",
