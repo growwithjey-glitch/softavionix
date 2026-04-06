@@ -3,6 +3,14 @@ import { getSupabaseAdmin } from "@/lib/supabase-admin";
 
 export const dynamic = "force-dynamic";
 
+type AdminProfitPageProps = {
+  searchParams?: Promise<{
+    range?: string;
+  }>;
+};
+
+const allowedRanges = ["today", "7d", "month", "all"];
+
 function formatMoney(amountInCents: number, currency = "usd") {
   return new Intl.NumberFormat("en-US", {
     style: "currency",
@@ -10,13 +18,54 @@ function formatMoney(amountInCents: number, currency = "usd") {
   }).format(amountInCents / 100);
 }
 
-export default async function AdminProfitPage() {
+function getRangeDates(range: string) {
+  const now = new Date();
+  const start = new Date(now);
+
+  if (range === "today") {
+    start.setHours(0, 0, 0, 0);
+    return { start, end: now };
+  }
+
+  if (range === "7d") {
+    start.setDate(now.getDate() - 6);
+    start.setHours(0, 0, 0, 0);
+    return { start, end: now };
+  }
+
+  if (range === "month") {
+    start.setDate(1);
+    start.setHours(0, 0, 0, 0);
+    return { start, end: now };
+  }
+
+  return null;
+}
+
+export default async function AdminProfitPage({
+  searchParams,
+}: AdminProfitPageProps) {
+  const params = (await searchParams) || {};
+  const selectedRange = allowedRanges.includes(params.range ?? "")
+    ? (params.range as string)
+    : "all";
+
   const supabaseAdmin = getSupabaseAdmin();
 
-  const { data: orders, error } = await supabaseAdmin
+  let query = supabaseAdmin
     .from("orders")
     .select("*")
     .order("created_at", { ascending: false });
+
+  const rangeDates = getRangeDates(selectedRange);
+
+  if (rangeDates) {
+    query = query
+      .gte("created_at", rangeDates.start.toISOString())
+      .lte("created_at", rangeDates.end.toISOString());
+  }
+
+  const { data: orders, error } = await query;
 
   if (error) {
     return (
@@ -77,6 +126,13 @@ export default async function AdminProfitPage() {
 
   const recentOrders = safeOrders.slice(0, 8);
 
+  const rangeLinks = [
+    { label: "Today", value: "today" },
+    { label: "Last 7 Days", value: "7d" },
+    { label: "This Month", value: "month" },
+    { label: "All Time", value: "all" },
+  ];
+
   return (
     <main className="bg-[#f7f6f1]">
       <div className="mx-auto max-w-7xl px-6 py-16 md:px-8">
@@ -108,6 +164,22 @@ export default async function AdminProfitPage() {
               Logout
             </a>
           </div>
+        </div>
+
+        <div className="mb-8 flex flex-wrap gap-3">
+          {rangeLinks.map((range) => (
+            <Link
+              key={range.value}
+              href={`/admin/profit?range=${range.value}`}
+              className={`rounded-full px-4 py-2 text-sm font-medium transition ${
+                selectedRange === range.value
+                  ? "bg-black text-white"
+                  : "border border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
+              }`}
+            >
+              {range.label}
+            </Link>
+          ))}
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
