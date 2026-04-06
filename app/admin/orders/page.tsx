@@ -111,12 +111,19 @@ export default async function AdminOrdersPage({
           </div>
 
           <div className="flex flex-wrap gap-3">
-            <a
-              href="/api/orders/export"
-              className="rounded-full border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
-            >
-              Export CSV
-            </a>
+           <a
+  href={`/api/orders/export${
+    selectedStatus || searchQuery
+      ? `?${new URLSearchParams({
+          ...(selectedStatus ? { status: selectedStatus } : {}),
+          ...(searchQuery ? { q: searchQuery } : {}),
+        }).toString()}`
+      : ""
+  }`}
+  className="rounded-full border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+>
+  Export CSV
+</a>
 
             <a
               href="/api/admin/logout"

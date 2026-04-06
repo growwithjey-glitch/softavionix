@@ -1,5 +1,13 @@
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 
+const allowedStatuses = [
+  "paid",
+  "purchasing",
+  "delivered",
+  "refunded",
+  "missing-cost",
+];
+
 function csvEscape(value: unknown) {
   const str = String(value ?? "");
   if (str.includes(",") || str.includes('"') || str.includes("\n")) {
@@ -8,14 +16,35 @@ function csvEscape(value: unknown) {
   return str;
 }
 
-export async function GET() {
+export async function GET(req: Request) {
   try {
+    const { searchParams } = new URL(req.url);
+
+    const status = searchParams.get("status")?.trim() || "";
+    const q = searchParams.get("q")?.trim() || "";
+
     const supabase = getSupabaseAdmin();
 
-    const { data: orders, error } = await supabase
+    let query = supabase
       .from("orders")
       .select("*")
       .order("created_at", { ascending: false });
+
+    if (status && allowedStatuses.includes(status)) {
+      if (status === "missing-cost") {
+        query = query.is("cost_price", null).neq("status", "refunded");
+      } else {
+        query = query.eq("status", status);
+      }
+    }
+
+    if (q) {
+      query = query.or(
+        `customer_email.ilike.%${q}%,id.ilike.%${q}%,stripe_session_id.ilike.%${q}%,order_number.ilike.%${q}%`
+      );
+    }
+
+    const { data: orders, error } = await query;
 
     if (error) {
       return new Response("Failed to load orders", { status: 500 });
