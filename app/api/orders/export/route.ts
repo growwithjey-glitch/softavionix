@@ -8,6 +8,8 @@ const allowedStatuses = [
   "missing-cost",
 ];
 
+const allowedRanges = ["today", "7d", "month", "all"];
+
 function csvEscape(value: unknown) {
   const str = String(value ?? "");
   if (str.includes(",") || str.includes('"') || str.includes("\n")) {
@@ -16,12 +18,37 @@ function csvEscape(value: unknown) {
   return str;
 }
 
+function getRangeDates(range: string) {
+  const now = new Date();
+  const start = new Date(now);
+
+  if (range === "today") {
+    start.setHours(0, 0, 0, 0);
+    return { start, end: now };
+  }
+
+  if (range === "7d") {
+    start.setDate(now.getDate() - 6);
+    start.setHours(0, 0, 0, 0);
+    return { start, end: now };
+  }
+
+  if (range === "month") {
+    start.setDate(1);
+    start.setHours(0, 0, 0, 0);
+    return { start, end: now };
+  }
+
+  return null;
+}
+
 export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
 
     const status = searchParams.get("status")?.trim() || "";
     const q = searchParams.get("q")?.trim() || "";
+    const range = searchParams.get("range")?.trim() || "";
 
     const supabase = getSupabaseAdmin();
 
@@ -42,6 +69,16 @@ export async function GET(req: Request) {
       query = query.or(
         `customer_email.ilike.%${q}%,id.ilike.%${q}%,stripe_session_id.ilike.%${q}%,order_number.ilike.%${q}%`
       );
+    }
+
+    if (range && allowedRanges.includes(range)) {
+      const rangeDates = getRangeDates(range);
+
+      if (rangeDates) {
+        query = query
+          .gte("created_at", rangeDates.start.toISOString())
+          .lte("created_at", rangeDates.end.toISOString());
+      }
     }
 
     const { data: orders, error } = await query;

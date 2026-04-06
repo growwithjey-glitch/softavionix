@@ -149,21 +149,32 @@ export default async function AdminProfitPage({
             </p>
           </div>
 
-          <div className="flex flex-wrap gap-3">
-            <Link
-              href="/admin/orders"
-              className="rounded-full border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
-            >
-              Back to Orders
-            </Link>
+         <div className="flex flex-wrap gap-3">
+  <a
+    href={`/api/orders/export${
+      selectedRange && selectedRange !== "all"
+        ? `?${new URLSearchParams({ range: selectedRange }).toString()}`
+        : ""
+    }`}
+    className="rounded-full border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+  >
+    Export CSV
+  </a>
 
-            <a
-              href="/api/admin/logout"
-              className="rounded-full border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
-            >
-              Logout
-            </a>
-          </div>
+  <Link
+    href="/admin/orders"
+    className="rounded-full border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+  >
+    Back to Orders
+  </Link>
+
+  <a
+    href="/api/admin/logout"
+    className="rounded-full border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+  >
+    Logout
+  </a>
+</div>
         </div>
 
         <div className="mb-8 flex flex-wrap gap-3">
