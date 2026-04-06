@@ -124,6 +124,12 @@ export default async function AdminOrdersPage({
 >
   Export CSV
 </a>
+<Link
+  href="/admin/profit"
+  className="rounded-full border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+>
+  Profit Dashboard
+</Link>
 
             <a
               href="/api/admin/logout"
