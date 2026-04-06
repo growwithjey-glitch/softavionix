@@ -77,6 +77,10 @@ export default async function AdminOrdersPage({
   const totalProfit = totalRevenue - totalCost;
   const ordersCount = safeOrders.length;
 
+  const missingCostCount = safeOrders.filter(
+  (order) => order.cost_price === null && order.status !== "refunded"
+).length;
+
   return (
     <main className="bg-[#f7f6f1]">
       <div className="mx-auto max-w-7xl px-6 py-16 md:px-8">
@@ -103,35 +107,42 @@ export default async function AdminOrdersPage({
   </a>
 </div>
 
-        <div className="mb-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          <div className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm">
-            <p className="text-sm font-medium text-slate-500">Revenue</p>
-            <p className="mt-3 text-3xl font-semibold text-slate-900">
-              {formatMoney(totalRevenue)}
-            </p>
-          </div>
+       <div className="mb-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+  <div className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm">
+    <p className="text-sm font-medium text-slate-500">Revenue</p>
+    <p className="mt-3 text-3xl font-semibold text-slate-900">
+      {formatMoney(totalRevenue)}
+    </p>
+  </div>
 
-          <div className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm">
-            <p className="text-sm font-medium text-slate-500">Cost</p>
-            <p className="mt-3 text-3xl font-semibold text-slate-900">
-              {formatMoney(totalCost)}
-            </p>
-          </div>
+  <div className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm">
+    <p className="text-sm font-medium text-slate-500">Cost</p>
+    <p className="mt-3 text-3xl font-semibold text-slate-900">
+      {formatMoney(totalCost)}
+    </p>
+  </div>
 
-          <div className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm">
-            <p className="text-sm font-medium text-slate-500">Profit</p>
-            <p className="mt-3 text-3xl font-semibold text-green-700">
-              {formatMoney(totalProfit)}
-            </p>
-          </div>
+  <div className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm">
+    <p className="text-sm font-medium text-slate-500">Profit</p>
+    <p className="mt-3 text-3xl font-semibold text-green-700">
+      {formatMoney(totalProfit)}
+    </p>
+  </div>
 
-          <div className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm">
-            <p className="text-sm font-medium text-slate-500">Orders</p>
-            <p className="mt-3 text-3xl font-semibold text-slate-900">
-              {ordersCount}
-            </p>
-          </div>
-        </div>
+  <div className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm">
+    <p className="text-sm font-medium text-slate-500">Orders</p>
+    <p className="mt-3 text-3xl font-semibold text-slate-900">
+      {ordersCount}
+    </p>
+  </div>
+
+  <div className="rounded-[28px] border border-amber-200 bg-amber-50 p-6 shadow-sm">
+    <p className="text-sm font-medium text-amber-700">Missing Cost Orders</p>
+    <p className="mt-3 text-3xl font-semibold text-amber-800">
+      {missingCostCount}
+    </p>
+  </div>
+</div>
 
         <AdminOrdersTable
           orders={safeOrders}
