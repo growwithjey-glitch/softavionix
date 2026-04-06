@@ -34,7 +34,7 @@ export default function MarketplaceSearchBar() {
         const matchesQuery =
           product.name.toLowerCase().includes(q) ||
           product.shortDescription.toLowerCase().includes(q) ||
-          product.category.toLowerCase().includes(q);
+        (product.category ?? "").toLowerCase().includes(q);
 
         const matchesCategory =
           selectedCategory === "All categories" ||

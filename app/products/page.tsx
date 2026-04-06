@@ -40,7 +40,7 @@ export default async function ProductsPage({
       product.name.toLowerCase().includes(searchQuery) ||
       product.shortDescription.toLowerCase().includes(searchQuery) ||
       product.description.toLowerCase().includes(searchQuery) ||
-      product.category.toLowerCase().includes(searchQuery);
+     (product.category ?? "").toLowerCase().includes(searchQuery);
 
     const matchesMinPrice = minPrice === null || product.price >= minPrice;
     const matchesMaxPrice = maxPrice === null || product.price <= maxPrice;

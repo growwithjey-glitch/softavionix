@@ -24,7 +24,7 @@ export default function SearchBar() {
         return (
           product.name.toLowerCase().includes(q) ||
           product.shortDescription.toLowerCase().includes(q) ||
-          product.category.toLowerCase().includes(q)
+        (product.category ?? "").toLowerCase().includes(q)
         );
       })
       .slice(0, 6);
