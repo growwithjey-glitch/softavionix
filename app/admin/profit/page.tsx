@@ -42,6 +42,26 @@ function getRangeDates(range: string) {
   return null;
 }
 
+function getMonthBounds(offsetMonths = 0) {
+  const now = new Date();
+  const start = new Date(now.getFullYear(), now.getMonth() + offsetMonths, 1);
+  const end = new Date(now.getFullYear(), now.getMonth() + offsetMonths + 1, 0, 23, 59, 59, 999);
+  return { start, end };
+}
+
+function calculateTotals(
+  orders: Array<{
+    amount_total?: number | null;
+    cost_price?: number | null;
+  }>
+) {
+  const revenue = orders.reduce((sum, order) => sum + (order.amount_total ?? 0), 0);
+  const cost = orders.reduce((sum, order) => sum + (order.cost_price ?? 0), 0);
+  const profit = revenue - cost;
+
+  return { revenue, cost, profit };
+}
+
 export default async function AdminProfitPage({
   searchParams,
 }: AdminProfitPageProps) {
@@ -52,20 +72,10 @@ export default async function AdminProfitPage({
 
   const supabaseAdmin = getSupabaseAdmin();
 
-  let query = supabaseAdmin
+  const { data: allOrders, error } = await supabaseAdmin
     .from("orders")
     .select("*")
     .order("created_at", { ascending: false });
-
-  const rangeDates = getRangeDates(selectedRange);
-
-  if (rangeDates) {
-    query = query
-      .gte("created_at", rangeDates.start.toISOString())
-      .lte("created_at", rangeDates.end.toISOString());
-  }
-
-  const { data: orders, error } = await query;
 
   if (error) {
     return (
@@ -84,7 +94,16 @@ export default async function AdminProfitPage({
     );
   }
 
-  const safeOrders = orders ?? [];
+  const allSafeOrders = allOrders ?? [];
+
+  const rangeDates = getRangeDates(selectedRange);
+
+  const safeOrders = rangeDates
+    ? allSafeOrders.filter((order) => {
+        const createdAt = new Date(order.created_at);
+        return createdAt >= rangeDates.start && createdAt <= rangeDates.end;
+      })
+    : allSafeOrders;
 
   const totalRevenue = safeOrders.reduce(
     (sum, order) => sum + (order.amount_total ?? 0),
@@ -126,6 +145,27 @@ export default async function AdminProfitPage({
 
   const recentOrders = safeOrders.slice(0, 8);
 
+  const currentMonthBounds = getMonthBounds(0);
+  const lastMonthBounds = getMonthBounds(-1);
+
+  const currentMonthOrders = allSafeOrders.filter((order) => {
+    const createdAt = new Date(order.created_at);
+    return createdAt >= currentMonthBounds.start && createdAt <= currentMonthBounds.end;
+  });
+
+  const lastMonthOrders = allSafeOrders.filter((order) => {
+    const createdAt = new Date(order.created_at);
+    return createdAt >= lastMonthBounds.start && createdAt <= lastMonthBounds.end;
+  });
+
+  const currentMonthTotals = calculateTotals(currentMonthOrders);
+  const lastMonthTotals = calculateTotals(lastMonthOrders);
+
+  const profitChange =
+    lastMonthTotals.profit === 0
+      ? null
+      : ((currentMonthTotals.profit - lastMonthTotals.profit) / lastMonthTotals.profit) * 100;
+
   const rangeLinks = [
     { label: "Today", value: "today" },
     { label: "Last 7 Days", value: "7d" },
@@ -149,32 +189,32 @@ export default async function AdminProfitPage({
             </p>
           </div>
 
-         <div className="flex flex-wrap gap-3">
-  <a
-    href={`/api/orders/export${
-      selectedRange && selectedRange !== "all"
-        ? `?${new URLSearchParams({ range: selectedRange }).toString()}`
-        : ""
-    }`}
-    className="rounded-full border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
-  >
-    Export CSV
-  </a>
+          <div className="flex flex-wrap gap-3">
+            <a
+              href={`/api/orders/export${
+                selectedRange && selectedRange !== "all"
+                  ? `?${new URLSearchParams({ range: selectedRange }).toString()}`
+                  : ""
+              }`}
+              className="rounded-full border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+            >
+              Export CSV
+            </a>
 
-  <Link
-    href="/admin/orders"
-    className="rounded-full border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
-  >
-    Back to Orders
-  </Link>
+            <Link
+              href="/admin/orders"
+              className="rounded-full border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+            >
+              Back to Orders
+            </Link>
 
-  <a
-    href="/api/admin/logout"
-    className="rounded-full border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
-  >
-    Logout
-  </a>
-</div>
+            <a
+              href="/api/admin/logout"
+              className="rounded-full border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+            >
+              Logout
+            </a>
+          </div>
         </div>
 
         <div className="mb-8 flex flex-wrap gap-3">
@@ -191,6 +231,45 @@ export default async function AdminProfitPage({
               {range.label}
             </Link>
           ))}
+        </div>
+
+        <div className="mb-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+          <div className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm">
+            <p className="text-sm font-medium text-slate-500">This Month Revenue</p>
+            <p className="mt-3 text-3xl font-semibold text-slate-900">
+              {formatMoney(currentMonthTotals.revenue)}
+            </p>
+          </div>
+
+          <div className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm">
+            <p className="text-sm font-medium text-slate-500">This Month Cost</p>
+            <p className="mt-3 text-3xl font-semibold text-slate-900">
+              {formatMoney(currentMonthTotals.cost)}
+            </p>
+          </div>
+
+          <div className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm">
+            <p className="text-sm font-medium text-slate-500">This Month Profit</p>
+            <p className="mt-3 text-3xl font-semibold text-green-700">
+              {formatMoney(currentMonthTotals.profit)}
+            </p>
+          </div>
+
+          <div className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm">
+            <p className="text-sm font-medium text-slate-500">Last Month Profit</p>
+            <p className="mt-3 text-3xl font-semibold text-slate-900">
+              {formatMoney(lastMonthTotals.profit)}
+            </p>
+          </div>
+
+          <div className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm">
+            <p className="text-sm font-medium text-slate-500">Change vs Last Month</p>
+            <p className="mt-3 text-3xl font-semibold text-slate-900">
+              {profitChange === null
+                ? "—"
+                : `${profitChange >= 0 ? "+" : ""}${profitChange.toFixed(1)}%`}
+            </p>
+          </div>
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
