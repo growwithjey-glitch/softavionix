@@ -1,5 +1,6 @@
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import AdminOrdersTable from "@/components/AdminOrdersTable";
+import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 
@@ -136,12 +137,18 @@ export default async function AdminOrdersPage({
     </p>
   </div>
 
-  <div className="rounded-[28px] border border-amber-200 bg-amber-50 p-6 shadow-sm">
-    <p className="text-sm font-medium text-amber-700">Missing Cost Orders</p>
-    <p className="mt-3 text-3xl font-semibold text-amber-800">
-      {missingCostCount}
-    </p>
-  </div>
+<Link
+  href="/admin/orders?status=missing-cost"
+  className="rounded-[28px] border border-amber-200 bg-amber-50 p-6 shadow-sm transition hover:-translate-y-0.5 hover:bg-amber-100"
+>
+  <p className="text-sm font-medium text-amber-700">Missing Cost Orders</p>
+  <p className="mt-3 text-3xl font-semibold text-amber-800">
+    {missingCostCount}
+  </p>
+  <p className="mt-3 text-sm font-medium text-amber-700">
+    View orders →
+  </p>
+</Link>
 </div>
 
         <AdminOrdersTable
